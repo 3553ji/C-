@@ -1,0 +1,109 @@
+//绘制奥林匹克五环旗。
+#include"../实践/GUI/Simple_window.h"
+#include"GUI/Graph.h"
+//建立圆弧类。
+struct arc_circle :Shape {
+    arc_circle(Point p, int rr, int ba, int ea);
+    void draw_lines() const;
+
+private:
+    int r;
+    int begin_angle;
+    int end_angle;
+};
+
+arc_circle::arc_circle(Point p, int rr, int ba, int ea)
+    :r(rr), begin_angle(ba), end_angle(ea)
+{
+    add(Point(p.x - r, p.y - r));
+}
+
+void arc_circle::draw_lines() const
+{
+    if (fill_color().visibility()) {	// fill
+        fl_color(fill_color().as_int());
+        fl_pie(point(0).x, point(0).y, r + r - 1, r + r - 1, begin_angle, end_angle);
+        fl_color(color().as_int());	// reset color
+    }
+
+    if (color().visibility()) {
+        fl_color(color().as_int());
+        fl_arc(point(0).x, point(0).y, r + r, r + r, begin_angle, end_angle);
+    }
+}
+//-------------------------------------------------------------------------------------------
+int main()
+try
+{
+    using namespace Graph_lib;
+    //建立窗口。
+    Simple_window win(Point(0,0), 600,400 , "My Window");
+    Simple_window win2(Point(800,0), 600, 600, "Color_display");
+    //---------------------------------------------------------------------------------------
+    // 建立调色版。
+    Vector_ref<Graph_lib::Rectangle>vr;
+    Vector_ref<Text>tt;
+
+    for(int i=0;i<16;i++)
+        for (int j = 0; j < 16; j++)
+        {
+            ostringstream oss;
+            oss << i*16+j;
+            vr.push_back(new Graph_lib::Rectangle(Point(i * 35, j * 35), 35, 35));
+            tt.push_back(new Text(Point(i * 35, (j+1) * 35-10), oss.str()));
+            vr[vr.size() - 1].set_fill_color(i * 16 + j);
+            tt[tt.size() - 1].set_color(Color::white);
+            win2.attach(vr[vr.size() - 1]);
+            win2.attach(tt[tt.size() - 1]);
+        }
+    // --------------------------------------------------------------------------------------
+    //绘制旗面。
+    Graph_lib::Rectangle flat(Point(0, 0), 600, 350);
+    flat.set_color(Color::white);
+    flat.set_fill_color(Color::white);
+    win.attach(flat);
+    //--------------------------------------------------------------------------------------
+    //绘制蓝环。
+    arc_circle arc_blue(Point(100,115), 90, 0, 360);
+    arc_blue.set_color(4);
+    arc_blue.set_style(Line_style(Line_style::solid, 10));
+    win.attach(arc_blue);
+    //----------------------------------------------------------------------------------------
+    //绘制黄环。
+    arc_circle arc_yellow(Point(200, 205), 90, 100,94);
+    arc_yellow.set_color(3);
+    arc_yellow.set_style(Line_style(Line_style::solid, 10));
+    win.attach(arc_yellow);
+    //----------------------------------------------------------------------------------------
+    //绘制黑环。
+    arc_circle arc_black(Point(300, 115), 90, 184, 178);
+    arc_black.set_color(Color::black);
+    arc_black.set_style(Line_style(Line_style::solid, 10));
+    win.attach(arc_black);
+    //---------------------------------------------------------------------------------------
+    //绘制绿环。
+    arc_circle arc_green(Point(400, 205), 90, 100, 94);
+    arc_green.set_color(99);
+    arc_green.set_style(Line_style(Line_style::solid, 10));
+    win.attach(arc_green);
+    //----------------------------------------------------------------------------------------
+    //绘制红环。
+    arc_circle arc_red(Point(500,115), 90, -176, 178);
+    arc_red.set_color(1);
+    arc_red.set_style(Line_style(Line_style::solid, 10));
+    win.attach(arc_red);
+    //----------------------------------------------------------------------------------------
+    //将控制权交给显示引擎，使GUI系统在屏幕上显示一个对象，并等待用户按下窗口中的“Next”，以便执行下面的程序。
+    win.wait_for_button();
+    win2.wait_for_button();
+    //----------------------------------------------------------------------------------------
+}
+catch (exception& e) {
+    cerr << "error: " << e.what() << '\n';
+    return 1;
+}
+catch (...) {
+    cerr << "Oops: unknown exception!\n";
+    return 2;
+};
+//---------------------------------------------------------------------------------------------
